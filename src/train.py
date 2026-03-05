@@ -3,11 +3,9 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import seaborn as sns
 import mlflow
 import mlflow.sklearn
 import argparse
-from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
@@ -18,26 +16,20 @@ parser.add_argument("--min_samples_split", type=int, default=100, help="Міні
 # Зчитуємо аргументи
 args = parser.parse_args()
 
-# 1. Завантаження даних
-print("Завантаження даних...")
-df = pd.read_csv('data/raw/cleaned_house_rent_data.csv')
+# 1. Завантаження ПІДГОТОВЛЕНИХ даних
+print("Завантаження тренувальної та тестової вибірок...")
+processed_path = 'data/processed/'
+train_df = pd.read_csv(f'{processed_path}train.csv')
+test_df = pd.read_csv(f'{processed_path}test.csv')
 
-# 2. One-Hot Encoding для категоріальних змінних
-print("Кодування категоріальних ознак...")
-categorical_cols = df.select_dtypes(include=['object']).columns
-df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
+# Розділення на X (ознаки) та y (цільова змінна)
+X_train = train_df.drop(columns=['Rent'])
+y_train = train_df['Rent']
 
-# 3. Розділення на X (ознаки) та y (цільова змінна)
-X = df.drop(columns=['Rent'])
-y = df['Rent']
+X_test = test_df.drop(columns=['Rent'])
+y_test = test_df['Rent']
 
-# 4. Розділення вибірки (80% трен, 20% тест)
-print("Розділення на тренувальну та тестову вибірки...")
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# 5. Ініціалізація MLflow
-# Іменування експериментів: дотримуйтесь єдиної схеми
-# <domain>_<objective>_<stage> (наприклад: cv_defectDetection_v1).
+# 2. Ініціалізація MLflow
 experiment_name = "House-Rent_Decision-Tree_v1"
 mlflow.set_experiment(experiment_name)
 
@@ -49,6 +41,7 @@ params = {
 
 current_run_name = f"DT_depth-{params['max_depth']}_split-{params['min_samples_split']}"
 print("Запуск MLflow та тренування моделі...")
+
 with mlflow.start_run(run_name=f"TEST:{current_run_name}"):
 
     mlflow.set_tags({
@@ -92,7 +85,7 @@ with mlflow.start_run(run_name=f"TEST:{current_run_name}"):
     
     # Створення та логування графіка Feature Importance 
     plt.figure(figsize=(10, 8))
-    feat_importances = pd.Series(dt_model.feature_importances_, index=X.columns)
+    feat_importances = pd.Series(dt_model.feature_importances_, index=X_train.columns)
     feat_importances.nlargest(10).plot(kind='barh', color='teal').invert_yaxis()
     plt.title("Top 10 Feature Importances - Decision Tree")
     plt.xlabel("Importance Score")

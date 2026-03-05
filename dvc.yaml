@@ -1,0 +1,16 @@
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+      - data/raw/cleaned_house_rent_data.csv
+      - src/prepare.py
+    outs:
+      - data/processed/
+
+  train:
+    cmd: python src/train.py --max_depth 10 --min_samples_split 100
+    deps:
+      - data/processed/
+      - src/train.py
+    outs:
+      - feature_importance.png

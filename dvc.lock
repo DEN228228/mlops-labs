@@ -1,0 +1,36 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: data/raw/cleaned_house_rent_data.csv
+      hash: md5
+      md5: e117243e6294d48464cfd3a71e7e43bb
+      size: 889426088
+    - path: src/prepare.py
+      hash: md5
+      md5: a1fb39731a44aee3db5f5342d16f7e70
+      size: 1653
+    outs:
+    - path: data/processed/
+      hash: md5
+      md5: 8ad3ea8e76b9ae90a15b747d263d4414.dir
+      size: 3289567829
+      nfiles: 2
+  train:
+    cmd: python src/train.py --max_depth 10 --min_samples_split 100
+    deps:
+    - path: data/processed/
+      hash: md5
+      md5: 8ad3ea8e76b9ae90a15b747d263d4414.dir
+      size: 3289567829
+      nfiles: 2
+    - path: src/train.py
+      hash: md5
+      md5: 1921d1077f9d74c85c62f452e032b76e
+      size: 4033
+    outs:
+    - path: feature_importance.png
+      hash: md5
+      md5: 3e7e87c376e863194dfb450afbab69b0
+      size: 30333
