@@ -2,7 +2,7 @@ stages:
   prepare:
     cmd: python src/prepare.py --train_size 0.02 --test_size 0.005
     deps:
-      - data/raw/cleaned_house_rent_data.csv
+      - data/raw/cleaned_house_rent_data_cropped.csv
       - src/prepare.py
     outs:
       - data/processed/

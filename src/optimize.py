@@ -10,7 +10,7 @@ import mlflow
 import mlflow.sklearn
 import optuna
 import hydra
-import joblib 
+import joblib
 from omegaconf import DictConfig, OmegaConf, ListConfig
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import Ridge, Lasso
@@ -160,7 +160,7 @@ def main(cfg: DictConfig) -> None:
         train_df = train_df.sample(n=5000, random_state=cfg.seed)
     if len(test_df) > 1000:
         test_df = test_df.sample(n=1000, random_state=cfg.seed)
-        
+
     print(f"Розмір тренувальної вибірки обмежено до: {len(train_df)} рядків")
     print(f"Розмір тестової вибірки обмежено до: {len(test_df)} рядків")
     # ---------------------------------------------------------
