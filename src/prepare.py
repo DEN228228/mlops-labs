@@ -29,7 +29,7 @@ def main():
     print("Завантаження даних...")
     df = pd.read_csv("data/raw/cleaned_house_rent_data.csv")
 
-    # 2. One-Hot Encoding для категоріальних змінних
+    # 2. One-Hot Encoding для категоріальних змінни
     print("Кодування категоріальних ознак...")
     categorical_cols = df.select_dtypes(include=["object"]).columns
     df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)

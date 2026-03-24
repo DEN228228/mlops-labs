@@ -13,3 +13,4 @@ models/
 plots/
 data/processed/
 metrics.json
+/models
