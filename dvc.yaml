@@ -2,10 +2,16 @@ stages:
   prepare:
     cmd: python src/prepare.py --train_size 0.02 --test_size 0.005
     deps:
-      - data/raw/cleaned_house_rent_data.csv
+      - data/raw/cleaned_house_rent_data_cropped.csv
       - src/prepare.py
     outs:
       - data/processed/
+
+  test_data:
+    cmd: pytest tests/test_data.py -v
+    deps:
+      - data/processed/
+      - tests/test_data.py
 
   train:
     cmd: python src/optimize.py
@@ -13,5 +19,16 @@ stages:
       - data/processed/
       - src/optimize.py
       - config/
-    outs:
+    outs: 
       - plots/
+      - models/ 
+    metrics:
+      - metrics.json:
+          cache: false 
+
+  test_model:
+    cmd: pytest tests/test_model.py -v
+    deps:
+      - models/
+      - metrics.json
+      - tests/test_model.py

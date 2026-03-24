@@ -2,3 +2,5 @@
     remote = mylocal
 ['remote "mylocal"']
     url = ../../dvc_storage
+['remote "origin"']
+    url = https://dagshub.com/DEN228228/mlops-labs.dvc
