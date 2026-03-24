@@ -1,0 +1,20 @@
+defaults:
+  - model: DecisionTreeRegressor
+  - hpo: optuna
+  - _self_
+
+seed: 42
+
+data:
+  train_path: "data/processed/train.csv"
+  test_path: "data/processed/test.csv"
+  sample_fraction: 0.05
+
+mlflow:
+  experiment_name: "House-Rent_Decision-Tree_Optuna_v2"
+  registered_model_name: "HouseRent_DecisionTree_Best"
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null

@@ -10,7 +10,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 parser = argparse.ArgumentParser(description="Тренування Decision Tree з кастомними параметрами")
-parser.add_argument("--max_depth", type=int, default=10, help="Максимальна глибина дерева (max_depth)")
+parser.add_argument("--max_depth", type=int, default=5, help="Максимальна глибина дерева (max_depth)")
 parser.add_argument("--min_samples_split", type=int, default=100, help="Мінімальна кількість зразків для поділу (min_samples_split)")
 
 # Зчитуємо аргументи

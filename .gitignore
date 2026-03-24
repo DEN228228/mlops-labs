@@ -8,5 +8,4 @@ models/
 mlruns/
 .trash/
 mlflow.db
-feature_importanc.png
-/feature_importance.png
+plots/

@@ -1,0 +1,23 @@
+sampler: "random"
+n_trials: 20
+cv_folds: 5
+direction: "minimize"
+
+search_space:
+  DecisionTreeRegressor:
+    max_depth:
+      low: 3
+      high: 30
+    min_samples_split:
+      low: 2
+      high: 150
+    min_samples_leaf:
+      low: 1
+      high: 50
+  
+  RegularizedLinear:
+    penalty: ["l1", "l2"] 
+    alpha:
+      low: 0.01
+      high: 10.0
+      log: true
