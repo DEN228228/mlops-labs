@@ -1,4 +1,5 @@
 import os
+import json
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -62,12 +63,10 @@ def objective_factory(cfg: DictConfig, X_train: pd.DataFrame, y_train: pd.Series
             mlflow.set_tags({
                 "author": "Denys Svintsylo",
                 "model_type": cfg.model.type,
-                "optuna_trial": trial.number,
-                "data_fraction": f"{cfg.data.sample_fraction * 100}%"
+                "optuna_trial": trial.number
             })
 
             params = suggest_params(trial, cfg)
-            
             params_to_log = params.copy()
 
             model = build_model(cfg.model.type, params, cfg.seed)
@@ -117,14 +116,14 @@ def objective_factory(cfg: DictConfig, X_train: pd.DataFrame, y_train: pd.Series
     return objective
 
 def main(cfg: DictConfig) -> None:
-    fraction_pct = int(cfg.data.sample_fraction * 100)
-    print(f"Завантаження {fraction_pct}% тренувальної та тестової вибірок...")
+    print("Завантаження тренувальної та тестової вибірок...")
     
     train_path = cfg.data.train_path
     test_path = cfg.data.test_path
 
-    train_df = pd.read_csv(train_path).sample(frac=cfg.data.sample_fraction, random_state=cfg.seed)
-    test_df = pd.read_csv(test_path).sample(frac=cfg.data.sample_fraction, random_state=cfg.seed)
+    # Завантажуємо дані повністю, без використання sample(frac=...)
+    train_df = pd.read_csv(train_path)
+    test_df = pd.read_csv(test_path)
 
     X_train = train_df.drop(columns=['Rent'])
     y_train = train_df['Rent']
@@ -137,7 +136,6 @@ def main(cfg: DictConfig) -> None:
     hpo_type = cfg.hpo.sampler.upper()
     
     parent_run_name = f"Optuna_{cfg.model.type}_{hpo_type}"
-    
     print(f"Створення батьківського Run'у з назвою: {parent_run_name}")
     
     with mlflow.start_run(run_name=parent_run_name):
@@ -185,6 +183,18 @@ def main(cfg: DictConfig) -> None:
             artifact_path="best_model",
             registered_model_name=f"{cfg.mlflow.registered_model_name}_{cfg.model.type}" 
         )
+
+        # ---------------------------------------------------------
+        # ЗБЕРЕЖЕННЯ МЕТРИК У metrics.json
+        # ---------------------------------------------------------
+        print("Збереження фінальних метрик у metrics.json...")
+        metrics = {
+            "rmse": float(test_rmse),
+            "mae": float(test_mae),
+            "r2": float(test_r2)
+        }
+        with open("metrics.json", "w", encoding="utf-8") as f:
+            json.dump(metrics, f, ensure_ascii=False, indent=2)
 
     print(f"\nЕксперимент залоговано в MLflow під назвою '{cfg.mlflow.experiment_name}'.")
 

@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   prepare:
-    cmd: python src/prepare.py
+    cmd: python src/prepare.py --train_size 0.02 --test_size 0.005
     deps:
     - path: data/raw/cleaned_house_rent_data.csv
       hash: md5
@@ -9,28 +9,34 @@ stages:
       size: 889426088
     - path: src/prepare.py
       hash: md5
-      md5: a1fb39731a44aee3db5f5342d16f7e70
-      size: 1653
+      md5: bd1730069fc6bc4396c26a7bee7545a6
+      size: 2762
     outs:
     - path: data/processed/
       hash: md5
-      md5: 8ad3ea8e76b9ae90a15b747d263d4414.dir
-      size: 3289567829
+      md5: ff64f0a85a381c44840f9d1c9962b5c3.dir
+      size: 82240687
       nfiles: 2
   train:
-    cmd: python src/train.py --max_depth 10 --min_samples_split 100
+    cmd: python src/optimize.py
     deps:
+    - path: config/
+      hash: md5
+      md5: d42b4610063313ca4b981318102a974e.dir
+      size: 1405
+      nfiles: 6
     - path: data/processed/
       hash: md5
-      md5: 8ad3ea8e76b9ae90a15b747d263d4414.dir
-      size: 3289567829
+      md5: ff64f0a85a381c44840f9d1c9962b5c3.dir
+      size: 82240687
       nfiles: 2
-    - path: src/train.py
+    - path: src/optimize.py
       hash: md5
-      md5: 10158deae5b39fa7373ecb7127055710
-      size: 4032
+      md5: 57da4b8cf48f9b29efc8122b4c2b3247
+      size: 9184
     outs:
-    - path: feature_importance.png
+    - path: plots/
       hash: md5
-      md5: 3e7e87c376e863194dfb450afbab69b0
-      size: 30333
+      md5: dc6e3b1019dfa53dd7975058ba1e5f7e.dir
+      size: 143788
+      nfiles: 5
