@@ -9,3 +9,7 @@ mlruns/
 mlflow.db
 plots/
 /plots
+models/
+plots/
+data/processed/
+metrics.json
