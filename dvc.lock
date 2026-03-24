@@ -3,14 +3,14 @@ stages:
   prepare:
     cmd: python src/prepare.py --train_size 0.02 --test_size 0.005
     deps:
-    - path: data/raw/cleaned_house_rent_data.csv
+    - path: data/raw/cleaned_house_rent_data_cropped.csv
       hash: md5
-      md5: e117243e6294d48464cfd3a71e7e43bb
-      size: 889426088
+      md5: af0b109aab5d5428614da984fc197c13
+      size: 8897409
     - path: src/prepare.py
       hash: md5
-      md5: bd1730069fc6bc4396c26a7bee7545a6
-      size: 2762
+      md5: 62ae38308a43cfb3c4ba0e36b3c7daa1
+      size: 2787
     outs:
     - path: data/processed/
       hash: md5
@@ -32,11 +32,48 @@ stages:
       nfiles: 2
     - path: src/optimize.py
       hash: md5
-      md5: 26b4c305918458d20d9134e5b11764d9
-      size: 9775
+      md5: afc6cfd2f929b912ebdb0337654ffc7d
+      size: 10209
     outs:
+    - path: metrics.json
+      hash: md5
+      md5: 8cbcf2bfaddaea49fc1805036570cec0
+      size: 90
+    - path: models/
+      hash: md5
+      md5: 7299b7e0926faa9928dfb8788ffce1c8.dir
+      size: 4641
+      nfiles: 1
     - path: plots/
       hash: md5
-      md5: dc6e3b1019dfa53dd7975058ba1e5f7e.dir
-      size: 143788
+      md5: 6ade052287ece9289dc210c2ff30cc2f.dir
+      size: 149899
       nfiles: 5
+  test_data:
+    cmd: pytest tests/test_data.py -v
+    deps:
+    - path: data/processed/
+      hash: md5
+      md5: ff64f0a85a381c44840f9d1c9962b5c3.dir
+      size: 82240687
+      nfiles: 2
+    - path: tests/test_data.py
+      hash: md5
+      md5: 7412e36fa7d0703931a69359efd60668
+      size: 784
+  test_model:
+    cmd: pytest tests/test_model.py -v
+    deps:
+    - path: metrics.json
+      hash: md5
+      md5: 8cbcf2bfaddaea49fc1805036570cec0
+      size: 90
+    - path: models/
+      hash: md5
+      md5: 7299b7e0926faa9928dfb8788ffce1c8.dir
+      size: 4641
+      nfiles: 1
+    - path: tests/test_model.py
+      hash: md5
+      md5: 8d41eedb56d343e0eade4c2571710a20
+      size: 959
