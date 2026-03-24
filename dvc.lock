@@ -32,8 +32,8 @@ stages:
       nfiles: 2
     - path: src/optimize.py
       hash: md5
-      md5: 57da4b8cf48f9b29efc8122b4c2b3247
-      size: 9184
+      md5: 26b4c305918458d20d9134e5b11764d9
+      size: 9775
     outs:
     - path: plots/
       hash: md5

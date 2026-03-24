@@ -1,0 +1,82 @@
+name: Model CI (Train, Test, Report)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies via uv
+        run: uv sync
+
+      - name: Lint (flake8)
+        run: uv run flake8 . --exclude=.venv,venv,mlruns,data --count --select=E9,F63,F7,F82 --show-source --statistics
+        
+      - name: Format check (black)
+        run: uv run black . --check
+
+      - name: Setup DVC and Pull Data
+        env:
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
+          DAGSHUB_USERNAME: "DEN228228"
+        run: |
+          uv run dvc remote modify origin --local auth basic
+          uv run dvc remote modify origin --local user $DAGSHUB_USERNAME
+          uv run dvc remote modify origin --local password $DAGSHUB_USER_TOKEN
+          uv run dvc pull
+
+      - name: Run DVC pipeline (Prepare, Test Data, Train, Test Model)
+        env:
+          R2_THRESHOLD: "0.70"
+        run: |
+          uv run dvc repro
+
+      - name: Setup CML
+        if: github.event_name == 'pull_request'
+        uses: iterative/setup-cml@v2
+
+      - name: Create CML report (PR only)
+        if: github.event_name == 'pull_request'
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          R2_THRESHOLD: "0.70"
+        run: |
+          # Створюємо Markdown-звіт для коментаря в Pull Request
+          cat <<EOF > report.md
+          ##Р езультати навчання моделі
+          
+          **Метрики (metrics.json):**
+          \`\`\`json
+          $(cat metrics.json)
+          \`\`\`
+          
+          ### Quality Gate
+          Мінімальний поріг R2: **$R2_THRESHOLD**
+          EOF
+          
+          cml comment create report.md
+
+      - name: Upload model artifact (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-model
+          path: models/

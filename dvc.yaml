@@ -7,11 +7,28 @@ stages:
     outs:
       - data/processed/
 
+  test_data:
+    cmd: pytest test_data.py -v
+    deps:
+      - data/processed/
+      - test_data.py
+
   train:
     cmd: python src/optimize.py
     deps:
       - data/processed/
       - src/optimize.py
       - config/
-    outs:
+    outs: 
       - plots/
+      - models/ 
+    metrics:
+      - metrics.json:
+          cache: false 
+
+  test_model:
+    cmd: pytest test_model.py -v
+    deps:
+      - models/
+      - metrics.json
+      - test_model.py
