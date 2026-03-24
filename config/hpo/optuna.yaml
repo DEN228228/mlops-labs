@@ -1,5 +1,5 @@
 sampler: "optuna"
-n_trials: 20
+n_trials: 5
 cv_folds: 5
 direction: "minimize"
 
