@@ -10,7 +10,7 @@ data:
   test_path: "data/processed/test.csv"
 
 mlflow:
-  experiment_name: "House-Rent-Optimization"
+  experiment_name: "House-Rent-Optimization-new"
   registered_model_name: "HouseRent_Best"
 
 hydra:
