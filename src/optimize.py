@@ -154,7 +154,7 @@ def main(cfg: DictConfig) -> None:
     test_df = pd.read_csv(test_path)
 
     # ---------------------------------------------------------
-    # ДОДАНО: ОБМЕЖЕННЯ РОЗМІРУ ВИБІРКИ ДЛЯ ШВИДКОСТІ
+    # ОБМЕЖЕННЯ РОЗМІРУ ВИБІРКИ ДЛЯ ШВИДКОСТІ
     # ---------------------------------------------------------
     if len(train_df) > 5000:
         train_df = train_df.sample(n=5000, random_state=cfg.seed)
@@ -222,6 +222,33 @@ def main(cfg: DictConfig) -> None:
         mlflow.log_metric("final_test_rmse", float(test_rmse))
         mlflow.log_metric("final_test_mae", float(test_mae))
         mlflow.log_metric("final_test_r2", float(test_r2))
+
+        # ---------------------------------------------------------
+        # ДОДАНО: СТВОРЕННЯ ГРАФІКА АКТУАЛЬНІ vs ПЕРЕДБАЧЕНІ
+        # ---------------------------------------------------------
+        print("Збереження фінального графіка (Actual vs Predicted)...")
+        os.makedirs("plots", exist_ok=True)
+        plt.figure(figsize=(8, 8))
+        plt.scatter(y_test, y_test_pred, alpha=0.5, color="dodgerblue")
+        # Малюємо ідеальну діагональ
+        plt.plot(
+            [y_test.min(), y_test.max()],
+            [y_test.min(), y_test.max()],
+            "r--",
+            lw=2,
+            label="Ideal Prediction",
+        )
+        plt.xlabel("Actual Rent")
+        plt.ylabel("Predicted Rent")
+        plt.title(f"Actual vs Predicted Rent (R2: {test_r2:.3f})")
+        plt.legend()
+
+        final_plot_path = "plots/best_model_actual_vs_predicted.png"
+        plt.tight_layout()
+        plt.savefig(final_plot_path)
+        plt.close()
+        mlflow.log_artifact(final_plot_path)
+        # ---------------------------------------------------------
 
         print("Реєстрація найкращої моделі в MLflow Model Registry...")
         mlflow.sklearn.log_model(
