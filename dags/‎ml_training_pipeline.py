@@ -54,6 +54,7 @@ with DAG(
         'docker_url': 'unix://var/run/docker.sock',
         'network_mode': 'mlops-network',
         'auto_remove': 'force',
+        'mount_tmp_dir': False,
         'mounts': [project_mount, venv_mount],
         'environment': {
             'MLFLOW_TRACKING_URI': 'http://mlflow-server:5000',

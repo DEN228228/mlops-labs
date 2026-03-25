@@ -86,8 +86,8 @@ stages:
     deps:
     - path: src/download.py
       hash: md5
-      md5: e436d4d847fd2f7dadf15a9c4c2c3ad4
-      size: 930
+      md5: 3e8840fd94546d76f0a6cdc8c08b1384
+      size: 614
       isexec: true
     outs:
     - path: data/raw/cleaned_house_rent_data_cropped.csv
