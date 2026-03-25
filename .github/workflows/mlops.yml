@@ -33,17 +33,7 @@ jobs:
       - name: Format check (black)
         run: uv run black . --check
 
-      - name: Setup DVC and Pull Data
-        env:
-          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
-          DAGSHUB_USERNAME: "DEN228228"
-        run: |
-          uv run dvc remote modify origin --local auth basic
-          uv run dvc remote modify origin --local user $DAGSHUB_USERNAME
-          uv run dvc remote modify origin --local password $DAGSHUB_USER_TOKEN
-          uv run dvc pull
-
-      - name: Run DVC pipeline (Prepare, Test Data, Train, Test Model)
+      - name: Run DVC pipeline (Download, Prepare, Test Data, Train, Test Model)
         env:
           R2_THRESHOLD: "0.70"
         run: |
@@ -59,16 +49,18 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           R2_THRESHOLD: "0.70"
         run: |
-          # Створюємо Markdown-звіт для коментаря в Pull Request
           cat <<EOF > report.md
-          ##Р езультати навчання моделі
+          ## 📊 Результати навчання моделі
           
           **Метрики (metrics.json):**
           \`\`\`json
           $(cat metrics.json)
           \`\`\`
           
-          ### Quality Gate
+          **Графік (Actual vs Predicted):**
+          $(cml publish plots/best_model_actual_vs_predicted.png --md)
+          
+          ### ✅ Quality Gate
           Мінімальний поріг R2: **$R2_THRESHOLD**
           EOF
           

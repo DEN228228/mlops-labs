@@ -22,8 +22,8 @@ stages:
     deps:
     - path: config/
       hash: md5
-      md5: d42b4610063313ca4b981318102a974e.dir
-      size: 1405
+      md5: 5b24e3d24d5329a11b8ceeb2ff1548da.dir
+      size: 1409
       nfiles: 6
     - path: data/processed/
       hash: md5
@@ -59,8 +59,8 @@ stages:
       nfiles: 2
     - path: tests/test_data.py
       hash: md5
-      md5: 7412e36fa7d0703931a69359efd60668
-      size: 784
+      md5: 8ecd7daf50d3518d111c51de01349609
+      size: 768
   test_model:
     cmd: pytest tests/test_model.py -v
     deps:

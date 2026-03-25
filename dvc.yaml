@@ -1,4 +1,11 @@
 stages:
+  download:
+    cmd: python src/download.py
+    deps:
+      - src/download.py
+    outs:
+      - data/raw/cleaned_house_rent_data_cropped.csv
+
   prepare:
     cmd: python src/prepare.py --train_size 0.02 --test_size 0.005
     deps:

@@ -27,7 +27,7 @@ def main():
 
     # 1. Завантаження даних
     print("Завантаження даних...")
-    df = pd.read_csv("data/raw/cleaned_house_rent_data.csv")
+    df = pd.read_csv("data/raw/cleaned_house_rent_data_cropped.csv")
 
     # 2. One-Hot Encoding для категоріальних змінни
     print("Кодування категоріальних ознак...")
