@@ -1,8 +1,6 @@
 name: Model CI (Train, Test, Report)
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
 
 permissions:
@@ -60,7 +58,7 @@ jobs:
           **Графік (Actual vs Predicted):**
           $(cml publish plots/best_model_actual_vs_predicted.png --md)
           
-          ### ✅ Quality Gate
+          ###Quality Gate
           Мінімальний поріг R2: **$R2_THRESHOLD**
           EOF
           

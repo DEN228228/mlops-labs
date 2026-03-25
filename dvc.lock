@@ -9,13 +9,14 @@ stages:
       size: 8897409
     - path: src/prepare.py
       hash: md5
-      md5: 62ae38308a43cfb3c4ba0e36b3c7daa1
-      size: 2787
+      md5: ea20853393ecd57bada8ffabc7f663e5
+      size: 2394
+      isexec: true
     outs:
     - path: data/processed/
       hash: md5
-      md5: ff64f0a85a381c44840f9d1c9962b5c3.dir
-      size: 82240687
+      md5: 9c3937c76e57d7e9b93192c8bb3e32aa.dir
+      size: 821716
       nfiles: 2
   train:
     cmd: python src/optimize.py
@@ -27,53 +28,69 @@ stages:
       nfiles: 6
     - path: data/processed/
       hash: md5
-      md5: ff64f0a85a381c44840f9d1c9962b5c3.dir
-      size: 82240687
+      md5: 9c3937c76e57d7e9b93192c8bb3e32aa.dir
+      size: 821716
       nfiles: 2
     - path: src/optimize.py
       hash: md5
-      md5: afc6cfd2f929b912ebdb0337654ffc7d
-      size: 10209
+      md5: 6178c605cbb0be0f1e765e170fd9e3aa
+      size: 11210
+      isexec: true
     outs:
     - path: metrics.json
       hash: md5
-      md5: 8cbcf2bfaddaea49fc1805036570cec0
-      size: 90
+      md5: f75eddfaa28c82f95c625c0333ac7d2e
+      size: 87
     - path: models/
       hash: md5
-      md5: 7299b7e0926faa9928dfb8788ffce1c8.dir
-      size: 4641
+      md5: d62a5be3c55d3fc389e0bb2d6a3647e2.dir
+      size: 5825
       nfiles: 1
     - path: plots/
       hash: md5
-      md5: 6ade052287ece9289dc210c2ff30cc2f.dir
-      size: 149899
-      nfiles: 5
+      md5: 48cf7c267492b2d2501584e4a06cfbc1.dir
+      size: 228184
+      nfiles: 6
   test_data:
     cmd: pytest tests/test_data.py -v
     deps:
     - path: data/processed/
       hash: md5
-      md5: ff64f0a85a381c44840f9d1c9962b5c3.dir
-      size: 82240687
+      md5: 9c3937c76e57d7e9b93192c8bb3e32aa.dir
+      size: 821716
       nfiles: 2
     - path: tests/test_data.py
       hash: md5
       md5: 8ecd7daf50d3518d111c51de01349609
       size: 768
+      isexec: true
   test_model:
     cmd: pytest tests/test_model.py -v
     deps:
     - path: metrics.json
       hash: md5
-      md5: 8cbcf2bfaddaea49fc1805036570cec0
-      size: 90
+      md5: f75eddfaa28c82f95c625c0333ac7d2e
+      size: 87
     - path: models/
       hash: md5
-      md5: 7299b7e0926faa9928dfb8788ffce1c8.dir
-      size: 4641
+      md5: d62a5be3c55d3fc389e0bb2d6a3647e2.dir
+      size: 5825
       nfiles: 1
     - path: tests/test_model.py
       hash: md5
       md5: 8d41eedb56d343e0eade4c2571710a20
       size: 959
+      isexec: true
+  download:
+    cmd: python src/download.py
+    deps:
+    - path: src/download.py
+      hash: md5
+      md5: e436d4d847fd2f7dadf15a9c4c2c3ad4
+      size: 930
+      isexec: true
+    outs:
+    - path: data/raw/cleaned_house_rent_data_cropped.csv
+      hash: md5
+      md5: af0b109aab5d5428614da984fc197c13
+      size: 8897409

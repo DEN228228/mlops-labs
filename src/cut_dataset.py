@@ -4,19 +4,10 @@ import os
 
 
 def sample_dataset(input_path: str, output_path: str, frac: float, seed: int):
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Файл не знайдено: {input_path}")
 
-    print(f"Завантаження даних з: {input_path}")
     df = pd.read_csv(input_path)
 
-    original_size = len(df)
-
     sampled_df = df.sample(frac=frac, random_state=seed)
-    new_size = len(sampled_df)
-
-    print(f"Початковий розмір: {original_size} рядків")
-    print(f"Новий розмір: {new_size} рядків ({frac * 100:.0f}%)")
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
