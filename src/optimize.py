@@ -233,7 +233,7 @@ def main(cfg: DictConfig) -> None:
 
         print("Перевірка Quality Gate перед реєстрацією в MLflow...")
         r2_threshold = float(os.getenv("R2_THRESHOLD", "0.70"))
-        
+
         if test_r2 >= r2_threshold:
             print(f"Успіх! R2 ({test_r2:.4f}) >= {r2_threshold}. Реєструємо модель...")
             mlflow.sklearn.log_model(
@@ -242,7 +242,9 @@ def main(cfg: DictConfig) -> None:
                 registered_model_name=f"{cfg.mlflow.registered_model_name}_{cfg.model.type}",
             )
         else:
-            print(f"Модель відхилено. R2 ({test_r2:.4f}) < {r2_threshold}. Реєстрацію скасовано.")
+            print(
+                f"Модель відхилено. R2 ({test_r2:.4f}) < {r2_threshold}. Реєстрацію скасовано."
+            )
 
         os.makedirs("models", exist_ok=True)
         model_filename = f"models/best_model_{cfg.model.type}.pkl"
@@ -257,9 +259,7 @@ def main(cfg: DictConfig) -> None:
             json.dump(metrics, f, ensure_ascii=False, indent=2)
         print(f"ФІНАЛЬНА ТОЧНІСТЬ МОДЕЛІ (R^2): {test_r2:.4f}")
 
-    print(
-        f"Експеримент залоговано в MLflow під назвою '{cfg.mlflow.experiment_name}'."
-    )
+    print(f"Експеримент залоговано в MLflow під назвою '{cfg.mlflow.experiment_name}'.")
 
 
 @hydra.main(version_base=None, config_path="../config", config_name="config")
