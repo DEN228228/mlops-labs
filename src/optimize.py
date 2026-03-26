@@ -144,26 +144,15 @@ def objective_factory(cfg: DictConfig, X_train: pd.DataFrame, y_train: pd.Series
 
 
 def main(cfg: DictConfig) -> None:
-    print("Завантаження тренувальної та тестової вибірок...")
-
     train_path = cfg.data.train_path
     test_path = cfg.data.test_path
 
-    # Завантажуємо дані повністю
     train_df = pd.read_csv(train_path)
     test_df = pd.read_csv(test_path)
-
-    # ---------------------------------------------------------
-    # ОБМЕЖЕННЯ РОЗМІРУ ВИБІРКИ ДЛЯ ШВИДКОСТІ
-    # ---------------------------------------------------------
     if len(train_df) > 5000:
         train_df = train_df.sample(n=5000, random_state=cfg.seed)
     if len(test_df) > 1000:
         test_df = test_df.sample(n=1000, random_state=cfg.seed)
-
-    print(f"Розмір тренувальної вибірки обмежено до: {len(train_df)} рядків")
-    print(f"Розмір тестової вибірки обмежено до: {len(test_df)} рядків")
-    # ---------------------------------------------------------
 
     X_train = train_df.drop(columns=["Rent"])
     y_train = train_df["Rent"]
@@ -203,13 +192,11 @@ def main(cfg: DictConfig) -> None:
         n_trials = cfg.hpo.get("n_trials", None) if cfg.hpo.sampler != "grid" else None
         study.optimize(objective, n_trials=n_trials)
 
-        print("\nОптимізацію завершено!")
         print(f"Найкраще значення CV RMSE: {study.best_value:.4f}")
 
         best_params = study.best_params
         best_params_to_log = best_params.copy()
 
-        print("Тренування фінальної моделі з найкращими гіперпараметрами...")
         best_model = build_model(cfg.model.type, best_params, cfg.seed)
         best_model.fit(X_train, y_train)
 
@@ -223,14 +210,9 @@ def main(cfg: DictConfig) -> None:
         mlflow.log_metric("final_test_mae", float(test_mae))
         mlflow.log_metric("final_test_r2", float(test_r2))
 
-        # ---------------------------------------------------------
-        # ДОДАНО: СТВОРЕННЯ ГРАФІКА АКТУАЛЬНІ vs ПЕРЕДБАЧЕНІ
-        # ---------------------------------------------------------
-        print("Збереження фінального графіка (Actual vs Predicted)...")
         os.makedirs("plots", exist_ok=True)
         plt.figure(figsize=(8, 8))
         plt.scatter(y_test, y_test_pred, alpha=0.5, color="dodgerblue")
-        # Малюємо ідеальну діагональ
         plt.plot(
             [y_test.min(), y_test.max()],
             [y_test.min(), y_test.max()],
@@ -248,21 +230,26 @@ def main(cfg: DictConfig) -> None:
         plt.savefig(final_plot_path)
         plt.close()
         mlflow.log_artifact(final_plot_path)
-        # ---------------------------------------------------------
 
-        print("Реєстрація найкращої моделі в MLflow Model Registry...")
-        mlflow.sklearn.log_model(
-            sk_model=best_model,
-            artifact_path="best_model",
-            registered_model_name=f"{cfg.mlflow.registered_model_name}_{cfg.model.type}",
-        )
+        print("Перевірка Quality Gate перед реєстрацією в MLflow...")
+        r2_threshold = float(os.getenv("R2_THRESHOLD", "0.70"))
 
-        print("Збереження найкращої моделі локально у папку models/ ...")
+        if test_r2 >= r2_threshold:
+            print(f"Успіх! R2 ({test_r2:.4f}) >= {r2_threshold}. Реєструємо модель...")
+            mlflow.sklearn.log_model(
+                sk_model=best_model,
+                artifact_path="best_model",
+                registered_model_name=f"{cfg.mlflow.registered_model_name}_{cfg.model.type}",
+            )
+        else:
+            print(
+                f"Модель відхилено. R2 ({test_r2:.4f}) < {r2_threshold}. Реєстрацію скасовано."
+            )
+
         os.makedirs("models", exist_ok=True)
         model_filename = f"models/best_model_{cfg.model.type}.pkl"
         joblib.dump(best_model, model_filename)
 
-        print("Збереження фінальних метрик у metrics.json...")
         metrics = {
             "rmse": float(test_rmse),
             "mae": float(test_mae),
@@ -270,10 +257,9 @@ def main(cfg: DictConfig) -> None:
         }
         with open("metrics.json", "w", encoding="utf-8") as f:
             json.dump(metrics, f, ensure_ascii=False, indent=2)
+        print(f"ФІНАЛЬНА ТОЧНІСТЬ МОДЕЛІ (R^2): {test_r2:.4f}")
 
-    print(
-        f"\nЕксперимент залоговано в MLflow під назвою '{cfg.mlflow.experiment_name}'."
-    )
+    print(f"Експеримент залоговано в MLflow під назвою '{cfg.mlflow.experiment_name}'.")
 
 
 @hydra.main(version_base=None, config_path="../config", config_name="config")
